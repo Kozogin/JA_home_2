@@ -90,128 +90,133 @@ public class Application {
 		magazineUsersDao.delete(3, 2);
 
 		// ---------------------------------------------------------------------
-		boolean again = true;
-		boolean userRegistered = false;
-		boolean userAdmin = false;
-		String userLogin = "";
-		String userPassword = "";
+		while (true) {
+			boolean again = true;
+			boolean userRegistered = false;
+			boolean userAdmin = false;
+			String userLogin = "";
+			String userPassword = "";
 
-		if (!userRegistered && !userAdmin) {
-			while (again) {
-				Menu.unregistered();
-				switch (scanInt("")) {
-				case 0:
-					magazineDao.readAll().stream().forEach(System.out::println);
-					break;
-				case 1:
-					userLogin = scanLine("login");
-					try {
-						if (usersDao.read(userLogin).getUserName().equals(userLogin)) {
-							userPassword = scanLine("password");
-							if (usersDao.read(userLogin).getPassword().equals(userPassword)) {
-								userRegistered = true;
-								userAdmin = false;
-								again = false;
-								if (userLogin.equals("admin")) {
-									userRegistered = false;
-									userAdmin = true;
+		
+
+			if (!userRegistered && !userAdmin) {
+				while (again) {
+					Menu.unregistered();
+					switch (scanInt("")) {
+					case 0:
+						magazineDao.readAll().stream().forEach(System.out::println);
+						break;
+					case 1:
+						userLogin = scanLine("login");
+						try {
+							if (usersDao.read(userLogin).getUserName().equals(userLogin)) {
+								userPassword = scanLine("password");
+								if (usersDao.read(userLogin).getPassword().equals(userPassword)) {
+									userRegistered = true;
+									userAdmin = false;
+									again = false;
+									if (userLogin.equals("admin")) {
+										userRegistered = false;
+										userAdmin = true;
+									}
 								}
 							}
+						} catch (NullPointerException e) {
+							System.out.println("No user with such name");
 						}
-					} catch (NullPointerException e) {
-						System.out.println("No user with such name");
-					}					
-					break;
-				case 2:
-					String userLog = scanLine("enter new user name");
-					try {
-					if (usersDao.read(userLog).getUserName().equals(userLog)) {	
-							System.out.println("a user with that name exists");
-					} 
-					} catch(NullPointerException e) {
+						break;
+					case 2:
+						String userLog = scanLine("enter new user name");
+						try {
+							if (usersDao.read(userLog).getUserName().equals(userLog)) {
+								System.out.println("a user with that name exists");
+							}
+						} catch (NullPointerException e) {
+							String userPass = scanLine("enter new user password");
+							String userFirst = scanLine("enter new user first name");
+							String userLast = scanLine("enter new user last name");
+							String userDetail = "";
+
+							usersDao.insert(new Users(userLog, userPass, userFirst, userLast, userDetail));
+						}
+						break;
+					default:
+						break;
+					}
+				}
+			}
+
+			if (userRegistered) {
+				again = true;
+				while (again) {
+					Menu.registered(userLogin);
+					switch (scanInt("")) {
+					case 0:
+						magazineDao.readAll().stream().forEach(System.out::println);
+						break;
+					case 1:
+						Menu.addSubscriptionMagazine(usersDao.read(userLogin).getId(), magazineDao, magazineUsersDao);
+						break;
+					case 2:
+						Menu.removeSubscriptionMagazine(usersDao.read(userLogin).getId(), magazineDao,
+								magazineUsersDao);
+						break;
+					case 3:
+						Menu.showSubscriptionMagazine(usersDao.read(userLogin).getId(), magazineDao, magazineUsersDao);
+						break;
+					case 4:
 						String userPass = scanLine("enter new user password");
 						String userFirst = scanLine("enter new user first name");
 						String userLast = scanLine("enter new user last name");
 						String userDetail = "";
 
-						usersDao.insert(new Users(userLog, userPass, userFirst, userLast, userDetail));
-					}					
-					break;
-				default:
-					break;
+						usersDao.update(new Users(userLogin, userPass, userFirst, userLast, userDetail));
+						break;
+					case 5:
+						userRegistered = false;
+						userAdmin = false;
+						again = false;
+						userLogin = "";
+						userPassword = "";
+						break;
+					default:
+						break;
+					}
 				}
 			}
-		}
 
-		if (userRegistered) {
-			again = true;
-			while (again) {
-				Menu.registered(userLogin);
-				switch (scanInt("")) {
-				case 0:
-					magazineDao.readAll().stream().forEach(System.out::println);
-					break;
-				case 1:
-					Menu.addSubscriptionMagazine(usersDao.read(userLogin).getId(), magazineDao, magazineUsersDao);						
-					break;
-				case 2:
-					Menu.removeSubscriptionMagazine(usersDao.read(userLogin).getId(), magazineDao, magazineUsersDao);
-					break;
-				case 3:	
-					Menu.showSubscriptionMagazine(usersDao.read(userLogin).getId(), magazineDao, magazineUsersDao);
-					break;
-				case 4:					
+			if (userAdmin) {
+				again = true;
+				while (again) {
+					Menu.admin();
+					switch (scanInt("")) {
+					case 0:
+						magazineDao.readAll().stream().forEach(System.out::println);
+						break;
+					case 1:
+						Menu.addMagazine(magazineDao);
+						break;
+					case 2:
+						Menu.removeMagazine(magazineDao, magazineUsersDao);
+						break;
+					case 3:
 						String userPass = scanLine("enter new user password");
 						String userFirst = scanLine("enter new user first name");
 						String userLast = scanLine("enter new user last name");
 						String userDetail = "";
 
-						usersDao.update(new Users(userLogin, userPass, userFirst, userLast, userDetail));						
-					break;
-				case 5:
-					userRegistered = false;
-					userAdmin = false;
-					again = false;
-					userLogin = "";
-					userPassword = "";
-					break;
-				default:
-					break;
-				}
-			}
-		}
-
-		if (userAdmin) {
-			again = true;
-			while (again) {
-				Menu.admin();
-				switch (scanInt("")) {
-				case 0:
-					magazineDao.readAll().stream().forEach(System.out::println);
-					break;
-				case 1:
-					Menu.addMagazine(magazineDao);
-					break;
-				case 2:
-					Menu.removeMagazine(magazineDao, magazineUsersDao);
-					break;
-				case 3:					
-					String userPass = scanLine("enter new user password");
-					String userFirst = scanLine("enter new user first name");
-					String userLast = scanLine("enter new user last name");
-					String userDetail = "";
-
-					usersDao.update(new Users(userLogin, userPass, userFirst, userLast, userDetail));	
-					break;
-				case 4:					
-					userRegistered = false;
-					userAdmin = false;
-					again = false;
-					userLogin = "";
-					userPassword = "";
-					break;
-				default:
-					break;
+						usersDao.update(new Users(userLogin, userPass, userFirst, userLast, userDetail));
+						break;
+					case 4:
+						userRegistered = false;
+						userAdmin = false;
+						again = false;
+						userLogin = "";
+						userPassword = "";
+						break;
+					default:
+						break;
+					}
 				}
 			}
 		}
