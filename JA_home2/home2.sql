@@ -1,4 +1,4 @@
-drop database if exists magazine;
+drop database if exists magazine; 
 create database magazine char set utf8;
 use magazine;
 select database();
